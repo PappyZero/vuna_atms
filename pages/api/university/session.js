@@ -1,18 +1,26 @@
-import { getSession } from '../../../lib/session'
+import { getSession } from '../../../lib/session';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
-    const session = await getSession(req)
-    if (!session?.address) {
-      return res.status(401).json({ authenticated: false })
+    console.log('Checking session...');
+
+    // Get the session data
+    const session = await getSession(req);
+    console.log('Session data:', session);
+
+    if (!session) {
+      console.error('No active session found');
+      return res.status(401).json({ message: 'No active session' });
     }
-    res.status(200).json({ authenticated: true, address: session.address })
+
+    // If the session is valid, return a success response
+    res.status(200).json({ message: 'Session is valid', user: { address: session.address } });
   } catch (error) {
-    console.error('Session check error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error('Session check error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }

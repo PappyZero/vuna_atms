@@ -11,32 +11,24 @@ export default function TranscriptPage() {
   const router = useRouter();
   const { id } = router.query;
   const [transcriptData, setTranscriptData] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
 
   // Function to handle PDF download
   const handleDownloadPDF = () => {
     const transcriptElement = document.getElementById('transcript');
 
-    // Use html2canvas to capture the transcript content as an image
     html2canvas(transcriptElement, {
-      scale: 2, // Increase scale for better quality
-      useCORS: true, // Enable CORS for external resources (if any)
+      scale: 2,
+      useCORS: true,
     })
       .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png'); // Convert canvas to image (PNG)
-        const pdf = new jsPDF('p', 'mm', 'a4'); // Create a new PDF in A4 size
-
-        const imgWidth = 210; // A4 width in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height to maintain aspect ratio
-
-        // Add the image to the PDF
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-        // Generate the filename using the student's matric number
         const matricNumber = transcriptData.studentInfo.matricNumber;
         const filename = `transcript_${matricNumber}.pdf`;
-
-        // Save the PDF with the dynamic filename
         pdf.save(filename);
         toast.success('Transcript download in progress...');
       })
@@ -48,12 +40,9 @@ export default function TranscriptPage() {
   useEffect(() => {
     const fetchTranscriptData = async () => {
       try {
-        // Validate the ID
         if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
           throw new Error('Invalid student ID');
         }
-
-        console.log('Fetching transcript data for student ID:', id);
 
         const res = await fetch(`/api/student-transcript?id=${id}`);
         if (!res.ok) {
@@ -62,21 +51,17 @@ export default function TranscriptPage() {
         }
         const data = await res.json();
         setTranscriptData(data);
-
-        // Show success toast only when data is successfully fetched
         toast.success('Transcript data loaded successfully!');
       } catch (error) {
-        // Show error toast only when there is an error
         toast.error(`Error fetching transcript: ${error.message}`);
       } finally {
-        setLoading(false); // Set loading to false after fetch completes
+        setLoading(false);
       }
     };
 
     fetchTranscriptData();
-  }, [id]); // Only run when `id` changes
+  }, [id]);
 
-  // Show loading state while data is being fetched
   if (loading) return <div className="text-black p-6">Loading...</div>;
 
   return (
@@ -86,12 +71,12 @@ export default function TranscriptPage() {
         className="main-content flex-grow p-6"
         id="transcript"
         style={{
-          width: '794px', // A4 width in pixels (210mm)
-          margin: '0 auto', // Center the content
-          padding: '20px', // Add padding inside the container
-          backgroundColor: 'white', // Set background color to white
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Add shadow effect
-          color: '#000000', // Ensure text color is black
+          width: '794px',
+          margin: '0 auto',
+          padding: '20px',
+          backgroundColor: 'white',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          color: '#000000',
         }}
       >
         <h1 className="text-2xl font-bold text-center mb-6" style={{ color: '#000000' }}>
@@ -230,19 +215,6 @@ export default function TranscriptPage() {
         )}
       </div>
       <Footer />
-
-      {/* Toast Notification Container */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </div>
   );
 }

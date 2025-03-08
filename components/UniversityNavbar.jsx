@@ -5,13 +5,21 @@ import { toast } from 'react-toastify';
 export default function UniversityNavbar() {
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/university/logout');
-      if (!response.ok) throw new Error('Logout failed');
-      toast.success('Logged out successfully');
-      window.location.href = '/university/universityLogin';
+      const response = await fetch('/api/university/logout', {
+        method: 'POST',
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Logout failed');
+      }
+  
+      // Clear local storage and redirect
+      localStorage.clear();
+      window.location.href = '/home/home';
     } catch (error) {
-      toast.error(error.message);
       console.error('Logout failed:', error);
+      toast.error(error.message || 'Logout failed. Please try again.');
     }
   };
 

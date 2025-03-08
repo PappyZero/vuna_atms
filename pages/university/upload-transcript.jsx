@@ -43,7 +43,7 @@ export default function UploadTranscript() {
           />
           <input
             type="text"
-            placeholder="Transcript IPFS Hash"
+            placeholder="Transcript Hash"
             required
             className="w-full p-2 border rounded"
             onChange={(e) => setFormData({ ...formData, transcriptHash: e.target.value })}
