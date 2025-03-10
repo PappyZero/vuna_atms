@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized wallet address' });
     }
 
-    // Verify the signature (optional, if needed)
+    // Verify the signature
     const recoveredAddress = ethers.verifyMessage(message, signature);
     if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
       console.error('Signature verification failed:', { recoveredAddress, address });

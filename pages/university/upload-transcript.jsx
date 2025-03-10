@@ -29,10 +29,10 @@ export default function UploadTranscript() {
   };
 
   return (
-    <div className="text-black flex flex-col min-h-screen">
+    <div className="text-white flex flex-col min-h-screen">
       <UniversityNavbar />
-      <div className="main-content flex-grow p-6 max-w-2xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">Upload Student Transcript</h1>
+      <div className="main-content flex-grow pt-16 max-w-2xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6 pt-16">Upload Student Transcript</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
@@ -50,7 +50,7 @@ export default function UploadTranscript() {
           />
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+            className="w-full bg-white text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
           >
             Upload to Blockchain
           </button>

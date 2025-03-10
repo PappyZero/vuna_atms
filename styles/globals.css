@@ -3,22 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000; /* Black background */
+  --foreground: #ffffff;
   /* --font-geist-sans: 'Geist Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-geist-mono: 'Geist Mono', Menlo, Monaco, Consolas, monospace; */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #fffefe;
+    --background: #000000;
     --foreground: #ededed;
   }
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background); /* Set background color to black */
   font-family: Arial, Helvetica, sans-serif;
   position: relative;
   z-index: 0;
@@ -39,7 +39,7 @@ body::before {
   z-index: -1;
 }
 
-.home-background {
+/* .home-background {
   position: relative;
   z-index: 0;
 }
@@ -55,9 +55,9 @@ body::before {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  opacity: 0.5; /* Adjust the transparency here */
+  opacity: 0.1; 
   z-index: -1;
-}
+} */
 
 @keyframes blob {
   0% { transform: translate(0px, 0px) scale(1); }
@@ -85,4 +85,57 @@ html, body {
 
 .main-content {
   flex: 1;
+}
+
+/* Background body animation */
+/* Blob Animation */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -20px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(20px, 20px) scale(1.05);
+  }
+}
+
+/* Blob Styling */
+.blob {
+  position: absolute;
+  width: 24rem; /* 384px */
+  height: 24rem; /* 384px */
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(96px); /* blur-3xl */
+  opacity: 0.5;
+  animation: blob 10s infinite ease-in-out;
+}
+
+.blob.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* Specific Blob Positioning */
+.blob.top-right {
+  top: -8rem; /* -32px */
+  right: -8rem; /* -32px */
+  background-color: rgba(224, 231, 255, 1); /* bg-indigo-100 */
+}
+
+.blob.top-left {
+  top: -10rem; /* -40px */
+  left: 0;
+  background-color: rgba(220, 252, 231, 1); /* bg-green-100 */
+}
+
+/* Hide on Mobile */
+@media (max-width: 767px) {
+  .blob {
+    display: none;
+  }
 }

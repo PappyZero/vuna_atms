@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import UniversityNavbar from '../../../../components/UniversityNavbar';
 import Footer from '../../../../components/Footer';
 
@@ -11,118 +10,51 @@ export default function GenerateHashPage() {
   const [hash, setHash] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Function to generate SHA-256 hash
   const generateHash = async (data) => {
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(data);
     const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+    return hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
   };
 
-  // Function to copy hash and show notification
   const copyHashToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(hash);
-      toast.success('Hash copied to clipboard!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.success('Hash copied to clipboard!');
     } catch (error) {
-      toast.error('Failed to copy hash!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error('Failed to copy hash!');
     }
   };
 
-  // Function to upload hash to the database
   const uploadHashToDatabase = async () => {
     try {
       const res = await fetch('/api/update-transcript-hash', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ transcriptId: id, hash }), // Send transcriptId and hash
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcriptId: id, hash }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || `HTTP error! ${res.status}`);
-      }
-
-      toast.success('Transcript hash uploaded to database successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      if (!res.ok) throw new Error((await res.json()).message || 'Upload failed');
+      toast.success('Hash uploaded successfully!');
     } catch (error) {
-      toast.error(`Error uploading hash: ${error.message}`, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(`Upload failed: ${error.message}`);
     }
   };
 
   useEffect(() => {
     const fetchTranscriptAndGenerateHash = async () => {
       try {
-        // Validate the ID
-        if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
-          throw new Error('Invalid student ID');
-        }
-
-        // Fetch transcript data
+        if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) throw new Error('Invalid student ID');
+        
         const res = await fetch(`/api/student-transcript?id=${id}`);
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || `HTTP error! ${res.status}`);
-        }
+        if (!res.ok) throw new Error((await res.json()).message || 'Fetch failed');
+        
         const data = await res.json();
-
-        // Convert transcript data to a string
-        const transcriptString = JSON.stringify(data);
-
-        // Generate the hash
-        const generatedHash = await generateHash(transcriptString);
-        setHash(generatedHash);
-
-        // Show success toast
-        toast.success('Hash generated successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        setHash(await generateHash(JSON.stringify(data)));
+        toast.success('Hash generated successfully!');
       } catch (error) {
-        // Show error toast
-        toast.error(`Error generating hash: ${error.message}`, {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.error(`Error: ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -131,38 +63,58 @@ export default function GenerateHashPage() {
     fetchTranscriptAndGenerateHash();
   }, [id]);
 
-  if (loading) return <div className="text-black p-6">Generating hash...</div>;
+  if (loading) return <div className="text-gray-800 p-6 bg-gray-50 min-h-screen">Generating hash...</div>;
 
   return (
-    <div className="text-black flex flex-col min-h-screen">
+    <div className="text-black">
       <UniversityNavbar />
-      <div className="main-content flex-grow p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Generate Blockchain Hash</h1>
-        <div className="bg-white p-6 rounded shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Generated Hash</h2>
-          <div className="bg-gray-100 p-4 rounded">
-            <code className="break-all">{hash}</code>
-          </div>
-          <div className="mt-4 flex gap-4">
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
-              onClick={copyHashToClipboard}
-            >
-              Copy Hash
-            </button>
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={uploadHashToDatabase}
-            >
-              Upload Hash to Database
-            </button>
+      {/* Background Decoration */}
+      <div className="blob top-right"></div>
+      <div className="blob top-left animation-delay-2000"></div>
+
+      <div className="pt-16 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <div className="pt-16 max-w-3xl mx-auto">
+          <div className="bg-white rounded-lg shadow-xl p-6 border border-gray-200">
+            <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
+              Blockchain Hash Generation
+            </h1>
+
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-700 mb-2">Generated Hash</h2>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <code className="break-all font-mono text-gray-600">{hash}</code>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={copyHashToClipboard}
+                  className="text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
+                >
+                  Copy Hash
+                </button>
+                <button
+                  onClick={uploadHashToDatabase}
+                  className="text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
+                >
+                  Save to Database
+                </button>
+              </div>
+
+              <div className="text-center mt-6">
+                <button
+                  onClick={() => router.back()}
+                  className="text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
+                >
+                  ← Back to Transcript
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <Footer />
-
-      {/* Toast Notification Container */}
-      <ToastContainer />
     </div>
   );
 }
