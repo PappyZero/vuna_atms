@@ -34,13 +34,14 @@ A blockchain-based system for secure academic transcript management using Next.j
 1. **Clone the repository**
 ```
 bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/PappyZero/vuna_atms.git
+cd vuna_atms
 ```
 
 2. **Install dependencies**
 ```
 bash
+cd nodejs
 npm install
 ```
 
