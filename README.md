@@ -62,7 +62,7 @@ cp .env.local.example .env.local
 
 2. **Update .env.local with your credentials**
 ```
-env
+#.env.local
 
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/dbname
 SECRET_COOKIE_PASSWORD=your-32-character-strong-secret-here
