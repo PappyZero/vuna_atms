@@ -47,7 +47,7 @@ npm install
 
 3. **Install Foundry (for smart contract development)**
 ```
-bash
+#bash
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
@@ -56,7 +56,7 @@ foundryup
 
 1. **Create environment file**
 ```
-bash
+#bash
 cp .env.local.example .env.local
 ```
 
@@ -75,14 +75,14 @@ TRANSCRIPT_STORAGE_ADDRESS=0xDeployedContractAddress
 ## Running the Application
 **Start development server**
 ```
-bash
+#bash
 npm run dev
 ```
 The application will be available at http://localhost:3000
 
 **Available Scripts**
 ```
-bash
+#bash
 npm run dev    # Start development server
 npm run build  # Create production build
 npm run start  # Start production server
@@ -97,19 +97,19 @@ Deploy with Vercel
 ## Manual Deployment
 1. **Create production build**
 ```
-bash
+#bash
 npm run build
 ```
 
 2. **Start server**
 ```
-bash
+#bash
 npm run start
 ```
 
 **Docker**
 ```
-bash
+#bash
 docker build -t atms .
 docker run -p 3000:3000 atms
 ```
