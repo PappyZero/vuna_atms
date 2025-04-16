@@ -79,20 +79,24 @@ export default function UniversityLogin() {
 
   // Show loading state while checking session
   if (checkingSession) {
-    return <div className="text-black p-6">Checking session...</div>;
+    return <div className="text-white p-6">Checking session...</div>;
   }
 
   // Render the login page
   return (
-    <div className="text-black">
+    <div className="min-h-screen text-white">
       <Navbar />
+      {/* Background Decoration */}
+      <div className="blob top-right"></div>
+      <div className="blob top-left animation-delay-2000"></div>
+
       <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white p-8 rounded shadow-md">
-          <h1 className="text-2xl font-bold mb-4">Exam Officer Login</h1>
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold mb-4 text-white">Exam Officer Login</h1>
           <button
             onClick={handleConnect}
             disabled={loading}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-600 transition-colors duration-200"
           >
             {loading ? 'Connecting...' : 'Connect MetaMask'}
           </button>

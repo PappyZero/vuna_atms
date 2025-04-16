@@ -13,8 +13,11 @@ export default function Home({ children }) {
     <div className={`${inter.variable} antialiased`}>
       <Navbar />
       {children}
+      {/* Background Decoration */}
+      <div className="blob top-right"></div>
+      <div className="blob top-left animation-delay-2000"></div>
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-4xl text-black font-bold mb-8">Academic Transcript Management System</h1>
+        <h1 className="text-4xl text-white font-bold mb-8">Academic Transcript Management System</h1>
         <div className="space-x-4">
           {/* <Link href="/admin/adminIndex">
             <span className="bg-blue-500 text-white px-4 py-2 rounded">Admin</span>

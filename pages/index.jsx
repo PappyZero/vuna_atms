@@ -10,15 +10,15 @@ const inter = Inter({
 
 export default function Home({ children }) {
   return (
-    <div className={`${inter.variable} antialiased flex flex-col min-h-screen`}>
+    <div className={`${inter.variable} antialiased flex flex-col`}>
       <Navbar />
       <main className="flex-grow">
         {children}
-        <section className="relative py-20 md:py-32 overflow-hidden">
+        <section className="relative py-20 md:py-32 overflow-hidden min-h-screen">
           {/* Background Decoration */}
-          <div className="hidden md:block absolute -top-32 -right-32 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-          <div className="hidden md:block absolute -top-40 left-0 w-96 h-96 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-
+          <div className="blob top-right"></div>
+          <div className="blob top-left animation-delay-2000"></div>
+          
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center gap-12">
               {/* Text Content */}
@@ -26,7 +26,7 @@ export default function Home({ children }) {
                 <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent mb-6">
                   Revolutionizing Academic Record Management with Blockchain
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto md:mx-0">
+                <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto md:mx-0">
                   A secure and efficient platform for managing academic transcripts using blockchain technology.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import UniversityNavbar from '../../../../components/UniversityNavbar';
 import Footer from '../../../../components/Footer';
 
@@ -13,47 +12,34 @@ export default function TranscriptPage() {
   const [transcriptData, setTranscriptData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to handle PDF download
   const handleDownloadPDF = () => {
     const transcriptElement = document.getElementById('transcript');
-
-    html2canvas(transcriptElement, {
-      scale: 2,
-      useCORS: true,
-    })
+    html2canvas(transcriptElement, { scale: 2, useCORS: true })
       .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
         const imgWidth = 210;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        const matricNumber = transcriptData.studentInfo.matricNumber;
-        const filename = `transcript_${matricNumber}.pdf`;
-        pdf.save(filename);
-        toast.success('Transcript download in progress...');
+        pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(`transcript_${transcriptData.studentInfo.matricNumber}.pdf`);
+        toast.success('Transcript download started...');
       })
       .catch((error) => {
-        toast.error(`Error downloading transcript: ${error.message}`);
+        toast.error(`Download failed: ${error.message}`);
       });
   };
 
   useEffect(() => {
     const fetchTranscriptData = async () => {
       try {
-        if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
-          throw new Error('Invalid student ID');
-        }
-
+        if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) throw new Error('Invalid student ID');
+        
         const res = await fetch(`/api/student-transcript?id=${id}`);
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || `HTTP error! ${res.status}`);
-        }
-        const data = await res.json();
-        setTranscriptData(data);
-        toast.success('Transcript data loaded successfully!');
+        if (!res.ok) throw new Error((await res.json()).message || 'Failed to fetch');
+        
+        setTranscriptData(await res.json());
+        toast.success('Transcript loaded successfully!');
       } catch (error) {
-        toast.error(`Error fetching transcript: ${error.message}`);
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -62,157 +48,145 @@ export default function TranscriptPage() {
     fetchTranscriptData();
   }, [id]);
 
-  if (loading) return <div className="text-black p-6">Loading...</div>;
+  if (loading) return <div className="text-black p-6 bg-gray-50 min-h-screen">Loading...</div>;
 
   return (
-    <div className="text-black flex flex-col min-h-screen">
+    <div className="min-h-screen pb-6">
       <UniversityNavbar />
-      <div
-        className="main-content flex-grow p-6"
-        id="transcript"
-        style={{
-          width: '794px',
-          margin: '0 auto',
-          padding: '20px',
-          backgroundColor: 'white',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          color: '#000000',
-        }}
-      >
-        <h1 className="text-2xl font-bold text-center mb-6" style={{ color: '#000000' }}>
-          Unofficial Transcript
-        </h1>
+      {/* Background Decoration */}
+      <div className="blob top-right"></div>
+      <div className="blob top-left animation-delay-2000"></div>
 
-        {/* Student Information Section */}
-        {transcriptData ? (
-          <>
-            <div className="mb-8">
-              <table className="w-full border-collapse mb-4" style={{ width: '100%', color: '#000000' }}>
-                <tbody>
-                  <tr>
-                    <td className="border p-2 font-semibold w-1/4">Name</td>
-                    <td className="border p-2 w-1/4">{transcriptData.studentInfo.name}</td>
-                    <td className="border p-2 font-semibold w-1/4">Matric Number</td>
-                    <td className="border p-2 w-1/4">{transcriptData.studentInfo.matricNumber}</td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2 font-semibold">Wallet Address</td>
-                    <td className="border p-2 font-mono" colSpan="3">
-                      {transcriptData.studentInfo.walletAddress}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2 font-semibold">Faculty</td>
-                    <td className="border p-2">{transcriptData.studentInfo.faculty}</td>
-                    <td className="border p-2 font-semibold">Programme</td>
-                    <td className="border p-2">{transcriptData.studentInfo.programme}</td>
-                  </tr>
-                  <tr>
-                    <td className="border p-2 font-semibold">Department</td>
-                    <td className="border p-2">{transcriptData.studentInfo.department}</td>
-                    <td className="border p-2 font-semibold">Current Level</td>
-                    <td className="border p-2">Level {transcriptData.studentInfo.currentLevel}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <div className="pt-16 pb-8 px-4 sm:px-6 lg:px-8">
+        <div className="pt-16 max-w-3xl mx-auto">
+          <div 
+            id="transcript"
+            className="bg-white rounded-lg shadow-xl p-6 border border-gray-200"
+          >
+            <h1 className="text-2xl font-bold text-black text-center mb-8">
+              Unofficial Transcript
+            </h1>
 
-            {/* Academic Records Section */}
-            {transcriptData.academicRecords.length > 0 ? (
-              transcriptData.academicRecords.map((record, index) => (
-                <div key={index} className="mb-8">
-                  <h2 className="text-xl font-bold mb-4" style={{ color: '#000000' }}>
-                    {record.session} | Level {record.level} | {record.semester} Semester
-                  </h2>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse" style={{ width: '100%', color: '#000000' }}>
-                      <thead>
-                        <tr className="bg-gray-200">
-                          <th className="border p-2">#</th>
-                          <th className="border p-2">Course Code</th>
-                          <th className="border p-2">Course Title</th>
-                          <th className="border p-2">Credit Unit</th>
-                          <th className="border p-2">Score</th>
-                          <th className="border p-2">Grade</th>
-                          <th className="border p-2">Pass/Fail</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {record.courses.map((course, courseIndex) => (
-                          <tr key={courseIndex}>
-                            <td className="border p-2 text-center">{courseIndex + 1}</td>
-                            <td className="border p-2">{course.courseCode}</td>
-                            <td className="border p-2">{course.courseTitle}</td>
-                            <td className="border p-2 text-center">{course.creditUnit}</td>
-                            <td className="border p-2 text-center">{course.score}</td>
-                            <td className="border p-2 text-center">{course.grade}</td>
-                            <td className="border p-2 text-center">{course.passFail}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="mt-4">
-                    <table className="w-1/2 ml-auto" style={{ width: '50%', marginLeft: 'auto', color: '#000000' }}>
-                      <tbody>
-                        <tr>
-                          <td className="border p-2 font-semibold">Total Credit Units</td>
-                          <td className="border p-2 text-center">
-                            {record.courses.reduce((sum, course) => sum + course.creditUnit, 0)}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border p-2 font-semibold">Semester GPA</td>
-                          <td className="border p-2 text-center">{record.semesterGPA?.toFixed(2)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+            {transcriptData ? (
+              <>
+                {/* Student Information */}
+                <div className="mb-8">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Name</label>
+                      <p className="text-black">{transcriptData.studentInfo.name}</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Matric Number</label>
+                      <p className="text-black">{transcriptData.studentInfo.matricNumber}</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Wallet Address</label>
+                      <p className="font-mono text-gray-600 break-words">
+                        {transcriptData.studentInfo.walletAddress}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Faculty</label>
+                      <p className="text-black">{transcriptData.studentInfo.faculty}</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Programme</label>
+                      <p className="text-black">{transcriptData.studentInfo.programme}</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <label className="text-sm font-bold text-black">Current Level</label>
+                      <p className="text-black">Level {transcriptData.studentInfo.currentLevel}</p>
+                    </div>
                   </div>
                 </div>
-              ))
+
+                {/* Academic Records */}
+                {transcriptData.academicRecords.map((record, index) => (
+                  <div key={index} className="mb-8">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                      {record.session} | {record.level} Level | {record.semester} 
+                    </h2>
+
+                    <div className="overflow-x-auto rounded-lg border border-gray-200">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-green-700">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">#</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Course Code</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Course Title</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Credits</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Score</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Grade</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {record.courses.map((course, courseIndex) => (
+                            <tr key={courseIndex} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm text-black">{courseIndex + 1}</td>
+                              <td className="px-4 py-3 text-sm text-black">{course.courseCode}</td>
+                              <td className="px-4 py-3 text-sm text-black">{course.courseTitle}</td>
+                              <td className="px-4 py-3 text-sm text-black text-center">{course.creditUnit}</td>
+                              <td className="px-4 py-3 text-sm text-black text-center">{course.score}</td>
+                              <td className="px-4 py-3 text-sm text-black text-center">{course.grade}</td>
+                              <td className="px-4 py-3 text-sm text-black text-center">{course.passFail}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <span className="text-sm font-bold text-black">Total Credits: </span>
+                        <span className="text-black">
+                          {record.courses.reduce((sum, course) => sum + course.creditUnit, 0)}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <span className="text-sm font-bold text-black">Semester GPA: </span>
+                        <span className="text-black">
+                          {record.semesterGPA?.toFixed(2) || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Cumulative GPA */}
+                <div className="mt-8 p-4 bg-green-50 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-black">Cumulative GPA</span>
+                    <span className="text-2xl font-bold text-green-700">
+                      {transcriptData.cumulativeGPA?.toFixed(2) || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              </>
             ) : (
-              <div className="text-center text-gray-500" style={{ color: '#000000' }}>
-                No academic records found.
+              <div className="text-center text-black py-8">
+                No transcript data available
               </div>
             )}
-
-            {/* Cumulative GPA Section */}
-            <div className="mt-8">
-              <table className="w-1/2 ml-auto border-t-2 border-black" style={{ width: '50%', marginLeft: 'auto', color: '#000000' }}>
-                <tbody>
-                  <tr>
-                    <td className="p-2 font-semibold text-lg">Cumulative GPA</td>
-                    <td className="p-2 text-center text-lg">
-                      {transcriptData.cumulativeGPA?.toFixed(2)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-8 flex justify-center gap-4">
-              <button
-                className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700"
-                onClick={handleDownloadPDF}
-              >
-                Download PDF
-              </button>
-              <button
-                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-700"
-                onClick={() => router.push(`/university/transcript/${id}/generate-hash`)}
-              >
-                Generate Blockchain Hash
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="text-center text-gray-500" style={{ color: '#000000' }}>
-            No transcript data available.
           </div>
-        )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-8 flex justify-center gap-4">
+          <button
+            onClick={handleDownloadPDF}
+            className="bg-white text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
+          >
+            Download PDF
+          </button>
+          <button
+            onClick={() => router.push(`/university/transcript/${id}/generate-hash`)}
+            className="bg-white text-black hover:bg-green-200 p-2 shadow-xl border-b-2 border-green-500 bg-green rounded-md transition-colors duration-200"
+          >
+            Generate Blockchain Hash
+          </button>
+        </div>
       </div>
       <Footer />
     </div>
